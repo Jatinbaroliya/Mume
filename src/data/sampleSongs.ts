@@ -1,0 +1,65 @@
+import { Song } from '../types';
+
+// Lightweight sample songs to show default content in Home screen when no search has been performed
+export const sampleSongs: Song[] = [
+  {
+    id: 'sample-1',
+    name: 'Sunrise Drive',
+    album: { id: 'album-1', name: 'Morning Vibes' },
+    duration: 210000,
+    primaryArtists: 'Luma',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  },
+  {
+    id: 'sample-2',
+    name: 'City Lights',
+    album: { id: 'album-2', name: 'Night Beats' },
+    duration: 185000,
+    primaryArtists: 'Nero',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  },
+  {
+    id: 'sample-3',
+    name: 'Waves',
+    album: { id: 'album-3', name: 'Oceanic' },
+    duration: 240000,
+    primaryArtists: 'Ava',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  },
+  {
+    id: 'sample-4',
+    name: 'Midnight Run',
+    album: { id: 'album-4', name: 'Drive' },
+    duration: 200000,
+    primaryArtists: 'Ori',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  },
+  {
+    id: 'sample-5',
+    name: 'Echoes',
+    album: { id: 'album-5', name: 'Reflections' },
+    duration: 225000,
+    primaryArtists: 'Mira',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  },
+  {
+    id: 'sample-6',
+    name: 'Altitude',
+    album: { id: 'album-6', name: 'Skylines' },
+    duration: 195000,
+    primaryArtists: 'Kai',
+    language: 'english',
+    image: [],
+    downloadUrl: [],
+  }
+];
