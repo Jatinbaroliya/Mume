@@ -20,7 +20,7 @@ A React Native music streaming app built with Expo, TypeScript, and Zustand. Thi
 
 ## Tech Stack
 
-- **React Native** (Expo ~50.0.0)
+- **React Native** (Expo ~54.0.0)
 - **TypeScript**
 - **React Navigation v6** (Native Stack & Bottom Tabs)
 - **Zustand** (State Management)
