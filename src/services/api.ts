@@ -118,6 +118,32 @@ export const getArtistAlbums = async (id: string): Promise<any> => {
   }
 };
 
+export const getAlbumById = async (id: string): Promise<any> => {
+  try {
+    const response = await api.get(`/api/albums/${id}`);
+    return response.data;
+  } catch (error: any) {
+    // Don't log 404s as errors - endpoint might not exist
+    if (error?.response?.status !== 404) {
+      console.error('Error fetching album:', error);
+    }
+    throw error;
+  }
+};
+
+export const getAlbumSongs = async (id: string, page: number = 1): Promise<SongsResponse> => {
+  try {
+    const response = await api.get<SongsResponse>(`/api/albums/${id}/songs`, { params: { page } });
+    return response.data;
+  } catch (error: any) {
+    // Don't log 404s as errors - endpoint might not exist
+    if (error?.response?.status !== 404) {
+      console.error('Error fetching album songs:', error);
+    }
+    throw error;
+  }
+};
+
 /**
  * Try multiple possible endpoints to fetch currently popular / top songs.
  * Returns an array of Song objects if found, otherwise an empty array.

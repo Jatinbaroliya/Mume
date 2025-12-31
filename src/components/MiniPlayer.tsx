@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { usePlayerStore } from '../store/playerStore';
 import { audioService } from '../services/audioService';
 import { getImageUrl } from '../services/api';
@@ -11,6 +11,10 @@ import theme from '../theme';
 export default function MiniPlayer() {
   const navigation = useNavigation();
   const { currentSong, playbackStatus, position, duration } = usePlayerStore();
+  
+  // Check if Player screen is currently active
+  const navigationState = useNavigationState(state => state);
+  const isPlayerScreenActive = navigationState?.routes[navigationState.index]?.name === 'Player';
 
   useEffect(() => {
     if (currentSong && playbackStatus === 'loading') {
@@ -18,7 +22,8 @@ export default function MiniPlayer() {
     }
   }, [currentSong, playbackStatus]);
 
-  if (!currentSong) {
+  // Hide mini player if no song or if Player screen is active
+  if (!currentSong || isPlayerScreenActive) {
     return null;
   }
 

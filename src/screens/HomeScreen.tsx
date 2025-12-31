@@ -201,6 +201,23 @@ export default function HomeScreen() {
     }
   }, []);
 
+  // Fetch artist counts when Artists tab is active
+  useEffect(() => {
+    if (activeTab === 'Artists' && songs.length > 0) {
+      // Create artistsList from songs
+      const artistsList = Array.from(new Map(songs.map(s => [getArtistName(s) || 'Unknown', s])).values());
+      if (artistsList.length > 0) {
+        // Fetch counts for first batch of artists
+        artistsList.slice(0, 10).forEach(artist => {
+          const name = getArtistName(artist);
+          if (name && artistCountsRef.current[name] === undefined) {
+            fetchArtistCountRef.current(artist);
+          }
+        });
+      }
+    }
+  }, [activeTab, songs.length]);
+
   const handleLoadMore = () => {
     if (loading || !hasMore) return;
 
@@ -333,6 +350,29 @@ export default function HomeScreen() {
     artistCountsRef.current[key] = localCount;
     setArtistCounts({ ...artistCountsRef.current });
   }, [songs]);
+
+  // Stable callback for onViewableItemsChanged - use ref to avoid recreating on songs change
+  const fetchArtistCountRef = useRef(fetchArtistCount);
+  useEffect(() => {
+    fetchArtistCountRef.current = fetchArtistCount;
+  }, [fetchArtistCount]);
+
+  const handleViewableItemsChanged = useCallback(({ viewableItems }: any) => {
+    // Preload counts for visible items
+    viewableItems.forEach((v: any) => {
+      const artist = v.item;
+      const name = getArtistName(artist);
+      if (name && artistCountsRef.current[name] === undefined) {
+        fetchArtistCountRef.current(artist);
+      }
+    });
+  }, []);
+
+  // Viewability config for onViewableItemsChanged
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current;
+
   const mostPlayed = songs.slice(0, 8);
 
   // Albums derived from songs
@@ -476,14 +516,8 @@ export default function HomeScreen() {
           );
         }}
         onEndReachedThreshold={0.1}
-        onViewableItemsChanged={({ viewableItems }) => {
-          // Preload counts for visible items
-          viewableItems.forEach(v => {
-            const artist = v.item;
-            const name = getArtistName(artist);
-            if (name && artistCountsRef.current[name] === undefined) fetchArtistCount(artist);
-          });
-        }}
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
       />
     </View>
   );
@@ -554,7 +588,6 @@ export default function HomeScreen() {
       ) : activeTab === 'Songs' ? (
         <View>
           <View style={styles.songsHeader}>
-            <Text style={styles.songsCount}>{songs.length} songs</Text>
             <TouchableOpacity onPress={() => setSortVisible(true)} style={styles.sortButton}>
               <Text style={styles.sortText}>{sortOption} ▾</Text>
             </TouchableOpacity>
@@ -607,7 +640,7 @@ export default function HomeScreen() {
             renderItem={({ item }) => {
               const artistName = getArtistName(item) || 'Unknown';
               const imageUrl = getImageUrl(item.image, '300x300', artistName);
-              const count = songs.filter(s => getArtistName(s) === artistName).length;
+              const count = artistCounts[artistName] ?? songs.filter(s => getArtistName(s) === artistName).length;
 
               return (
                 <TouchableOpacity
@@ -620,7 +653,7 @@ export default function HomeScreen() {
                   <Image source={{ uri: imageUrl }} style={styles.artistRowImage} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.songTitle} numberOfLines={1}>{artistName}</Text>
-                    <Text style={styles.songSubtitle}>{count} songs</Text>
+                    <Text style={styles.songSubtitle}>{typeof count === 'number' ? `${count} ${count === 1 ? 'song' : 'songs'}` : '...'}</Text>
                   </View>
                 </TouchableOpacity>
               );
@@ -648,12 +681,12 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.albumRow}
-                onPress={() => navigation.navigate('Album' as never, { album: { id: item.id, name: item.name, image: item.image, artist: item.artist, songs: songs.filter(s => s.album?.id === item.id) } } as never)}
+                onPress={() => navigation.navigate('Album' as never, { album: { id: item.id, name: item.name, image: item.image, artist: item.artist, songs: songs.filter(s => s.album?.id === item.id || s.album?.name === item.name) } } as never)}
               >
                 <Image source={{ uri: getImageUrl(item.image, '300x300', item.id) }} style={styles.albumRowImage} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.songTitle} numberOfLines={1}>{item.name}</Text>
-                  <Text style={styles.songSubtitle}>{item.artist} • {item.count} songs</Text>
+                  <Text style={styles.songSubtitle}>{item.artist}</Text>
                 </View>
               </TouchableOpacity>
             )}
