@@ -41,7 +41,7 @@ A React Native music streaming app built with Expo, TypeScript, and Zustand. Thi
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd music-player-app
+cd Mume
 ```
 
 2. Install dependencies:
